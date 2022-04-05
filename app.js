@@ -6,6 +6,8 @@ require('dotenv').config({ path: './config/.env' });
 
 const userRoutes = require('./routes/userRoutes');
 
+require('./config/database').connectdatabase();
+
 // to get the data from url we use req.params and get method we get req.query but for the post method backend is used that is req.body and we use use body parser to activate that req.body
 app.use(express.json())
 app.use(express.urlencoded({extended:true}));
