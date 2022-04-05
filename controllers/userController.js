@@ -1,31 +1,30 @@
 const User = require('../model/userSchema');
-
+const catchAsyncErrors = require('../middleware/catchAsyncErrors')
 
 exports.getHomepage = (req, res) => {
     res.status(200).json({ message: 'Welcome to the homepage' });
 };
 
-exports.registerUser =async (req, res) => {
+exports.registerUser = catchAsyncErrors(async (req, res) => {
     const {username,email,password} = req.body;
     const user =await User.create({
         username,email,password
     })
-    res.status(201).json({ message: 'User created successfully', user });
-};
+    
+})
 
-exports.loginUser = async (req, res) => {
+exports.loginUser = catchAsyncErrors(async (req, res) => {
     const {email,password} = req.body;
     if(!email || !password){
-        res.status(404).json({message: 'Please provide email or password'})
+        return next(new ErrorHandler("Please provide email and password", 422));
     }
     const user =await User.findOne({ email }).select("+password");
     if(!user) {
-        res.status(404).json({error: "User not found"});
+        return next(new ErrorHandler("User not found", 400));
     }
     const isPasswordMatch =await user.comparePassword(password);
     
     if (!isPasswordMatch){
-          return res.status(422).json({ error: 'Incorrect email or password' });
+        return next(new ErrorHandler("Invalid email or password", 422));
     }
-    res.status(201).json({ message: 'User login successful', user });
-};
+});
